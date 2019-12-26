@@ -1,8 +1,8 @@
 # ImpedanceProject
 The data analysis, project design code for the 2D impedance project. For more project information, refer to the google doc procedure and relevant proposals.
 
-Folder structure overview:
-** DataAnalysis**: the preliminary analysis code that aligned the data and save the needed information in the output file. Simple plotting functions
+## Folder structure overview:
+** DataAnalysis **: the preliminary analysis code that aligned the data and save the needed information in the output file. Simple plotting functions
 Flow order: FindMaxOnsetIndex - CheckDirectionReading - ForceData or
 PositionData - Plot ForceData
 - Main: 
@@ -36,7 +36,7 @@ PositionData - Plot ForceData
         fashion as the ForceData
 
 
-** Results**: sample results, mostly plots in jpg format
+** Results **: sample results, mostly plots in jpg format
 
 - PartsDesign: solid work and 3d printer Code for the parts printed
 
