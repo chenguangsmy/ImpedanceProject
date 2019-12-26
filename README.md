@@ -2,41 +2,41 @@
 The data analysis, project design code for the 2D impedance project. For more project information, refer to the google doc procedure and relevant proposals.
 
 Folder structure overview:
-- DataAnalysis: the preliminary analysis code that aligned the data and save the needed information in the output file. Simple plotting functions
+** DataAnalysis**: the preliminary analysis code that aligned the data and save the needed information in the output file. Simple plotting functions
 Flow order: FindMaxOnsetIndex - CheckDirectionReading - ForceData or
 PositionData - Plot ForceData
----- Main: 
+- Main: 
         the main file to run that will initialize global variables to
         store the results, indicate if plots should be drawn, construct the
         condition index array as the current experiment setting, clean up and
         save processed data, plot the force data per condition.
----- FindMaxOnsetIndex: 
+- FindMaxOnsetIndex: 
         finding the max relative movement onset index per
         trial (how many sample does it take from beginning of the trial to the
         first movement onset). Only need to be run once per experiment.
----- CheckDirectionReading: 
+- CheckDirectionReading: 
         need to run once per condition. Pull out the
         indexes to use in the big data array, arrange them in an array where
         each row corresponds to the indexes of one trial. The trials are in
         order: all trials in first repetition listed before next repetition,
         etc.
----- ForceData: 
+- ForceData: 
         using the index to find the corresponding force at the
         sampling time, aline the data at movement onset time, arrange the data
         in alingedPosByBlock in order: allTrials for forceX, then forceY, then
         Fz, TorqueX,Y,Z; Save the processed data to the corresponding index in
         the final output variables.
----- PlotForceData: 
+- PlotForceData: 
         plot the force for all directions per condition, 24
         plots total
----- PlotForceDataByGroup: 
+- PlotForceDataByGroup: 
         not completed yet.
----- PositionData: 
+- PositionData: 
         clean up and aline the position data, in a seminar
         fashion as the ForceData
 
 
-- Results: sample results, mostly plots in jpg format
+** Results**: sample results, mostly plots in jpg format
 
 - PartsDesign: solid work and 3d printer Code for the parts printed
 
