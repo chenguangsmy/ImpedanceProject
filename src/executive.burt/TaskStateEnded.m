@@ -92,8 +92,12 @@ end
           %end
 
           fprintf(num2str(task_state_config.reward));
-          % Use give reward instead to use the exponential distribution. 
-          GiveReward(task_state_config.reward);
+        % The reward can take format e#; N#,#; or # to support exponential, normal or constant reward.
+        % If the code is using GiveDirectReward, the number represents the number of clicks.
+        % Need min 5 clicks to run through 60ml/120 trials
+        % If the code uses GiveReward, the number represents the pause duration in ds, 
+        % i.e. 50 -> 0.5s pause between task success and reward delivery. 
+          GiveDirectReward(task_state_config.reward);
 
           % Play reward sound
           if isfield(task_state_config, 'play_sound') && ...

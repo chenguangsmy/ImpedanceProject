@@ -36,13 +36,14 @@ while(1)
       case 'TASK_STATE_CONFIG'
         State.trial_config = M.data;
         State.force_gateable = (State.trial_config.id == 3);
-        fprintf('C(%d)\n', M.data.id);
+        %TODO: change this if want to change the random range
+        State.timeRange = ceil(rand*10); %iterations of message, assuming sampling at 20ms -> hold between 20ms to 200ms 
+        fprintf('C(%d), Time Range: %d\n', M.data.id, State.timeRange*20);
         
       case 'END_TASK_STATE'
         State = ResetState(State);
         fprintf('E(%d)\n', M.data.id);
-        
-        
+                
 % this message is already sampled, no need to use SAMPLED_GENERATED
       case 'FORCE_SENSOR_DATA'
         if  (~isempty(State.trial_config) && State.force_gateable )
@@ -71,7 +72,6 @@ exit
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 function State = JudgeForceFeedback( State)
-
 global RTMA;
 
 reason = [];
@@ -97,10 +97,20 @@ for j = 1 : num_thresholds
     judge_s(j) = 1;
     ignore_s(j) = 1;
   elseif ( fh(targets(j), thresh_s(j)) )
-    judge_s(j) = 1;
-  else
-    judge_s(j) = 0;
-  end
+      %only mark it as 1 if it had stayed here for a time range.
+      State.currentTime = State.currentTime+1;
+      timeDiff = State.timeRange - State.currentTime;
+      fprintf('\nTime Accumulating. Current stamp:%d, Distance: %d',State.currentTime,timeDiff);
+      if (State.currentTime == State.timeRange)
+          fprintf('\n\nTime Range Satisfied!!! Success!!!!');
+        judge_s(j) = 1;
+      end
+%not necessary, already at 0
+   else
+     judge_s(j) = 0;
+     State.currentTime = 0;
+     fprintf('\nFailed at threshold.\n')
+   end
 end
 
 % do we have at least one dimension to judge?
@@ -109,10 +119,10 @@ if (sum(ignore_s) ~= num_thresholds)
   num_judged = length(find(ignore_s == 0));
   
   if (sum(judge_s) == num_judged)
+      fprintf('\nSuccess. Setting reason to THRESHOLD');
     reason = 'THRESHOLD';
   end
 end
-
 
 %
 % Judging failure
@@ -135,6 +145,7 @@ end
 % do we have at least one dimension to judge?
 if (sum(ignore_f) ~= num_thresholds)
   if any(judge_f)
+      fprintf('\nFailure. Setting reason to THRESHOLD FAILT');
     reason = 'FORCE_THRESHOLD_FAIL';
   end
 end
@@ -144,6 +155,7 @@ res = repmat({''}, 1, num_thresholds);
 iii = find(ignore_s==0);
 suc_ = find(judge_s(iii)>0);
 suc = iii(suc_);
+% the 3 lines are the same as suc = find(ignore_s==0 & judge_s ==1)
 pol.less_than = '<';
 pol.greater_than = '>';
 if ~isempty(suc), res(suc) = repmat({'S'}, 1, length(suc));  end
@@ -182,8 +194,6 @@ if ~isempty( reason)
   SendMessage( 'JUDGE_VERDICT', msg);
   
   State = ResetState(State);
-  
-  fprintf('%s\n', reason);
 end
 
 
@@ -194,7 +204,7 @@ State.force_gateable = [];
 State.fdbk = [];
 State.engaged = false;
 State.event_occurred = false;
-
+State.currentTime = 0;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 function State = InitJudge()
