@@ -2,7 +2,8 @@
 The data analysis, project design code for the 2D impedance project. For more project information, refer to the google doc procedure and relevant proposals.
 
 ## Folder structure overview:
-** DataAnalysis **: the preliminary analysis code that aligned the data and save the needed information in the output file. Simple plotting functions
+###### DataAnalysis: 
+the preliminary analysis code that aligned the data and save the needed information in the output file. Simple plotting functions
 Flow order: FindMaxOnsetIndex - CheckDirectionReading - ForceData or
 PositionData - Plot ForceData
 - Main: 
@@ -36,18 +37,18 @@ PositionData - Plot ForceData
         fashion as the ForceData
 
 
-** Results **: sample results, mostly plots in jpg format
+__Results__: sample results, mostly plots in jpg format
 
-- PartsDesign: solid work and 3d printer Code for the parts printed
+__PartsDesign__: solid work and 3d printer Code for the parts printed
 
-- src: main folder for experiment modules
+__src__: main folder for experiment modules
 
-- Proficio_External: robotic arm control code
+__Proficio_External__: robotic arm control code
 
-- data_loader: code that translates the RTMS message to the saved data
+__data_loader__: code that translates the RTMS message to the saved data
 format. Invoked by the ProcessRawData common when running in
 matlab-shell under rg2/scripts
 
-- config: key configuration files used by the experiment, specifying task conditions, force threshold, each state time, pass/fail conditions, reward levels, etc.
+__config__: key configuration files used by the experiment, specifying task conditions, force threshold, each state time, pass/fail conditions, reward levels, etc.
 
-- CerebusButtonReward.m: The main matlab function to send reward. Normally under Documents/Matlab on the rig.
+__CerebusButtonReward.m__: The main matlab function to send reward. Normally under Documents/Matlab on the rig.
