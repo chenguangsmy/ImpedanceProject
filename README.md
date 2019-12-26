@@ -37,18 +37,25 @@ PositionData - Plot ForceData
         fashion as the ForceData
 
 
-__Results__: sample results, mostly plots in jpg format
+###### Results: 
+sample results, mostly plots in jpg format
 
-__PartsDesign__: solid work and 3d printer Code for the parts printed
+###### PartsDesign: 
+solid work and 3d printer Code for the parts printed
 
-__src__: main folder for experiment modules
+###### src: 
+main folder for experiment modules
 
-__Proficio_External__: robotic arm control code
+###### Proficio_External: 
+robotic arm control code
 
-__data_loader__: code that translates the RTMS message to the saved data
+###### data_loader: 
+code that translates the RTMS message to the saved data
 format. Invoked by the ProcessRawData common when running in
 matlab-shell under rg2/scripts
 
-__config__: key configuration files used by the experiment, specifying task conditions, force threshold, each state time, pass/fail conditions, reward levels, etc.
+###### config: 
+key configuration files used by the experiment, specifying task conditions, force threshold, each state time, pass/fail conditions, reward levels, etc.
 
-__CerebusButtonReward.m__: The main matlab function to send reward. Normally under Documents/Matlab on the rig.
+###### CerebusButtonReward.m: 
+The main matlab function to send reward. Normally under Documents/Matlab on the rig.
