@@ -1,0 +1,27 @@
+% State = MJ_UpdateInternalState( State)
+%
+% Updates the internal state that is common to the SimpleMonkey
+% and SimpleJudge, e.g. recalculates its reckoning of distance
+% to target, direction to target etc.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+function State = UpdateInternalState( State)
+
+    %%%
+    %%% TRANSLATION
+    %%%
+    trans_targ_pos = State.trial_config.target(1:3);
+    
+    % Burt math to convert target.
+    % USE the c code here!!!!
+    
+    
+    
+%     trans_act_pos = State.fdbk.actual_pos(1:3);
+%     target_displacement = trans_targ_pos - trans_act_pos;
+%     target_distance = sqrt( sum( target_displacement.^2));
+%     target_direction = target_displacement / target_distance;
+
+    State.calc.trans_target_distance = target_distance;
+    State.calc.trans_target_direction = target_direction;
+

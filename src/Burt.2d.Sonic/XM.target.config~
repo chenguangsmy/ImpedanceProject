@@ -1,0 +1,61 @@
+StructuredTextData  v1.2
+target_configurations :
+    combos :
+        selection_method    seq
+        #                   1  2  3  4  5  6  7  8  9 10 11 12 13 14 15 16
+        direction           0  0  0  0  0  0  0  0  4  4  4  4  4  4  4  4
+        force               1  1  1  1  1  1  1  1  2  2  2  2  2  2  2  2
+        move                1  1  1  1  2  2  2  2  1  1  1  1  2  2  2  2
+    ;
+
+    directions :
+        -1  0  0
+         1  0  0
+         0 -1  0
+         0  1  0
+         0  0 -1
+         0  0  1
+    
+    windows :
+        position {
+             2    8    # 2.4   3.4
+             7   13    # 1.7   2.7
+            12   18    # 1.1   2.0
+            17   23    # 0.4   1.4
+        }
+        
+        force :
+            lower {
+                -   10  -     -   -   -
+                -   20  -     -   -   -
+                -   30  -     -   -   -
+                -   40  -     -   -   -
+            }
+            
+            upper {
+                -   inf    -     -   -   - 
+                -   inf    -     -   -   - 
+                -   inf    -     -   -   - 
+                -   inf    -     -   -   -
+            }
+        ;
+    ;
+    
+    config_move :
+        # in
+        # s
+        window      position
+    ;
+
+    config_hold :
+        polarity    out
+        outcome     f
+        window      position
+    ;
+
+    config_force :
+        # in
+        # s
+        window     force
+    ;
+;

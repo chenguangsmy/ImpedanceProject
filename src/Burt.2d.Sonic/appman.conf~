@@ -1,0 +1,37 @@
+[DEFAULT]
+killtag = DRAGONFLY_KILLTAG=1
+server = pfem:7112
+matlab_env =
+use_screen = True
+
+[module ButtonDetector]
+
+[module ps3RawModule]
+module_file = ps3Module
+conf_file = ../default/Ps3RawModule.conf
+
+#[module SpikePlotter]
+#conf_file = None
+#host=beefy
+
+[module SimpleJudge]
+directory = /home/vr/rg2/src/SimpleJudgeMonkey
+conf_file = None
+
+#[module sound_maker]
+#conf_file = None
+#host=spikes2
+
+[module executive]
+directory = /home/vr/rg2/src/executive.burt2d
+conf_file = XM.config
+use_screen = False
+
+#[module rewardModule]
+#conf_file = None
+#host=spikes2
+
+
+#[module OptotrakTransform]
+#use_screen = False
+

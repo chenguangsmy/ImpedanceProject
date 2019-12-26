@@ -1,0 +1,181 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+function ConfigureJudge( id, task_state_config, target)
+
+global RTMA;
+global XM;
+
+% Determine timeout
+%
+Timeout = CalcTaskStateTimeout(task_state_config);
+
+% Determine thresholds for success and for failure
+trans_threshold = nan;
+trans_judging_polarity = 1; % = "<" (default)
+if (~strcmp(task_state_config.trans_threshold, '-'))
+    if ~isempty(strfind(task_state_config.trans_threshold, '>'))
+        trans_judging_polarity = 2;
+    end
+    trans_threshold = str2num(regexprep(task_state_config.trans_threshold,...
+        '(<|>)', ''));
+end
+
+trans_threshold_f = nan;
+trans_f_judging_polarity = 1; % = "<" (default)
+if isfield(task_state_config, 'trans_threshold_f')
+    if ~strcmp(task_state_config.trans_threshold_f, '-')
+        if ~isempty(strfind(task_state_config.trans_threshold_f, '>'))
+            trans_f_judging_polarity = 2;
+        end
+        trans_threshold_f = str2num(regexprep(task_state_config.trans_threshold_f,...
+            '(<|>)', ''));
+    end
+end
+
+ori_threshold = nan;
+ori_judging_polarity = 1; % = "<" (default)
+% if (~strcmp(task_state_config.ori_threshold, '-'))
+%   if ~isempty(strfind(task_state_config.ori_threshold, '>'))
+%     ori_judging_polarity = 2;
+%   end
+%   ori_threshold = str2num(regexprep(task_state_config.ori_threshold,...
+%                                     '(<|>)', '')) * (pi/180);
+% end
+
+ori_threshold_f = nan;
+ori_f_judging_polarity = 1; % = "<" (default)
+% if isfield(task_state_config, 'ori_threshold_f')
+%   if ~strcmp(task_state_config.ori_threshold_f, '-')
+%     if ~isempty(strfind(task_state_config.ori_threshold_f, '>'))
+%       ori_f_judging_polarity = 2;
+%     end
+%     ori_threshold_f = str2num(regexprep(task_state_config.ori_threshold_f,...
+%                                         '(<|>)', ''));
+%   end
+% end
+
+
+% ------------
+% NaN: don't judge, else: threshold
+finger_threshold = nan(1, RTMA.defines.MAX_HAND_DIMS);
+% 1=target less than threshold [<] (default)
+% 2=target greater than threshold [>]
+finger_threshold_judging_polarity = ones(1, RTMA.defines.MAX_HAND_DIMS);
+% ------------
+finger_threshold_judging_method = ones(1, RTMA.defines.MAX_HAND_DIMS);
+
+
+relax_arm = 0;
+if isfield(task_state_config, 'relax_arm')
+    if isnumeric(task_state_config.relax_arm)
+        if (task_state_config.relax_arm == 1)
+            relax_arm = 1;
+        end
+    else
+        if strcmpi(task_state_config.relax_arm, '1')
+            relax_arm = 1;
+        end
+    end
+end
+
+reach_offset = 0;
+if isfield(task_state_config, 'reach_offset')
+    if isnumeric(task_state_config.reach_offset)
+        if (task_state_config.reach_offset > 0)
+            reach_offset = 1;
+        end
+    else
+        if strcmpi(task_state_config.reach_offset, '1')
+            reach_offset = 1;
+        end
+    end
+end
+
+idle_timeout = nan;
+if isfield(task_state_config, 'idle_timeout')
+    if isnumeric(task_state_config.idle_timeout)
+        idle_timeout = task_state_config.idle_timeout;
+    else
+        if ~strcmpi(task_state_config.idle_timeout, '-')
+            idle_timeout = str2num(task_state_config.idle_timeout);
+        end
+    end
+    if (idle_timeout == 0)
+        idle_timeout = nan;
+    end
+end
+
+idle_gateable = 0;
+if isfield(task_state_config, 'idle_gateable')
+    idle_gateable = task_state_config.idle_gateable;
+end
+
+%% Handle Force Judging
+% nan: not set (default)
+sep_threshold = nan;
+sep_threshold_judging_polarity = 1; % = "<" (default);
+if (~strcmp(task_state_config.sep_threshold, '-'))
+    if ~isempty(strfind(task_state_config.sep_threshold, '>'))
+        sep_threshold_judging_polarity = 2;
+    end
+    sep_threshold = str2num(regexprep(task_state_config.sep_threshold,...
+        '(<|>)', ''));
+end
+
+sep_threshold_f = nan;
+sep_threshold_f_judging_polarity = 1; % = "<" (default)
+if isfield(task_state_config, 'sep_threshold_f')
+    if ~strcmp(task_state_config.sep_threshold_f, '-')
+        if ~isempty(strfind(task_state_config.sep_threshold_f, '>'))
+            sep_threshold_f_judging_polarity = 2;
+        end
+        sep_threshold_f = str2num(regexprep(task_state_config.sep_threshold_f,...
+            '(<|>)', ''));
+    end
+end
+
+%% Send Task state message to Judge(s)
+
+msg = RTMA.MDF.TASK_STATE_CONFIG;
+msg.id = int32(id);
+msg.rep_num = int32(XM.rep_num);
+msg.target_combo_index = int32(XM.active_combo_index);
+msg.timed_out_conseq = int32(task_state_config.timed_out_conseq);
+msg.reach_offset = int32(reach_offset);
+msg.relax_arm = int32(relax_arm);
+msg.idle_gateable = int32(idle_gateable);
+msg.ts_time = GetAbsTime( );
+msg.target = target;
+msg.idle_timeout = idle_timeout;
+% Position Judging
+msg.trans_threshold = trans_threshold;
+msg.trans_threshold_judging_polarity = int32(trans_judging_polarity);
+msg.trans_threshold_f = trans_threshold_f;
+msg.trans_threshold_f_judging_polarity = int32(trans_f_judging_polarity);
+msg.timeout = double(Timeout);
+% Orientation judging
+msg.ori_threshold = ori_threshold;
+msg.ori_threshold_judging_polarity = int32(ori_judging_polarity);
+msg.ori_threshold_f = ori_threshold_f;
+msg.ori_threshold_f_judging_polarity = int32(ori_f_judging_polarity);
+% Finger judging
+msg.finger_threshold = finger_threshold;
+msg.finger_threshold_judging_method = int32(finger_threshold_judging_method);
+msg.finger_threshold_judging_polarity = int32(finger_threshold_judging_polarity);
+% Force judging
+msg.sep_threshold = sep_threshold;
+msg.sep_threshold_judging_polarity = int32(sep_threshold_judging_polarity);
+msg.sep_threshold_f = sep_threshold_f;
+msg.sep_threshold_f_judging_polarity = int32(sep_threshold_f_judging_polarity);
+
+
+if isfield(task_state_config, 'tags')
+    tags = task_state_config.tags;
+    if iscell(tags)
+        tags(2:end) = cellfun(@(x) sprintf(' %s',x), tags(2:end), 'un', false);
+        tags = cell2mat(tags);
+    end
+    msg.tags(1:length(tags)) = tags;
+end
+
+SendMessage( 'TASK_STATE_CONFIG', msg);
+

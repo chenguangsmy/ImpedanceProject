@@ -1,0 +1,30 @@
+StructuredTextData  v1.2
+config             :
+    manual_session_start         0
+    use_controller               0
+    enable_denso                 0
+    denso_speed                 10
+    num_reps                     1
+    do_video                     0
+    do_tool_change               0
+    enable_remote                0
+    rest_time                   30
+    max_num_tries_per_target    10
+    max_num_tries_per_start_loc -1
+    manual_reward_level         40
+    task_state_config_files      {
+        XM.task_state.config
+    }
+    task_state_config_schedule   1
+    alternate_occurrence_freq    0
+    alternate_occurrence_rep     1
+    alternate_state_config_files {
+        XM.task_state.catch.config
+    }
+    #alternate_state_config_freq
+    robot_control_dims           XYZ-IJK-0123456789
+    robot_control_mode           VVVVVVVVVVVVVVVVVV
+    EM_used_dimensions           1 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+    camera_ip                    192.168.2.111
+    camera_port                  3456
+;
