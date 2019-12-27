@@ -77,5 +77,5 @@ annotation('textbox', [.015,.13,.12,.06],'String','High Fthreshold (8), Close Di
 
 %TODO: some observations: pos not symmetrical around 0, x is around -0.12, and y is around 0.5
 titleName = append('Session ', sessionNum,' Trial Average Force');
-annotation('textbox', [.43, 0.01,.19,.04],'String',titleName, ...
-    'EdgeColor', 'none' ,'FontSize', 15, 'FontWeight', 'bold');
+annotation('textbox', [.47,0.01,.15,.06],'String',titleName, ...
+    'EdgeColor', 'red' ,'FontSize', 12);

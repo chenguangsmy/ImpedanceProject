@@ -1,40 +1,48 @@
-%Pre-process the force data to be aligned at movement onset for each
-%condition type
+%Author: Shuqi Liu 
+%Date: 2019-12-27 17:06 
+%File Description: Pre-process the force data to be aligned at movement
+%onset time. Save the processsed data to the output variable.
+
 if (plotForce == 1)
     figure('Name','Force'); 
 end
 
-%FIXME: for some reason can't use block number here for the subplot command?
 posByBlock = zeros(forceRows * blocks, maxCols);
+%The relative movement onset index (from the beginning of a trial)
 onsetIndexByBlock = zeros(1,blocks);
 %maxMoveTime = 0;
+%1 block = 1 repetition or trial of a given condition.
 for i = 1 : blocks
-    %per block
-    com1indexPerBlock = com1Index(i, :);
-    com1indexPerBlock = nonzeros(com1indexPerBlock);
-    time = 0 : 0.02 : (length(com1indexPerBlock) -1) * 0.02;
+    IndexPerTrial = trialIndexForCurrentCondition(i, :);
+    IndexPerTrial = nonzeros(IndexPerTrial);
+    
     if (movementOnsetIndex(1,i) == 0)
-        %no data for this trial. The current condition didn't go through as
-        %many repetitions. Not ideal... ok for now.
+        %Current condition didn't run any many repetitions. Should never
+        %come here for now since the code setup the blocks to be calculated
+        %based on fully completed blocks.
         fprintf('No data for combo no: %d, rep: %d\n\n',conditionIndex, i);
         continue
     end
-    time0Index = find(com1indexPerBlock == movementOnsetIndex(1,i));
+    
+    time0Index = find(IndexPerTrial == movementOnsetIndex(1,i));
     onsetIndexByBlock (1, i) = time0Index;
-    moveTime = length(com1indexPerBlock) - time0Index;
-    fprintf('Move Time: %d\n',moveTime);
+    moveTime = length(IndexPerTrial) - time0Index;
+    %fprintf('Move Time: %d\n',moveTime);
     %TODO: figure out how to calculate max movetime for all in the
     %beginning
     if (moveTime > maxMoveTime)
        maxMoveTime = moveTime;
     end
-    %before alignment, time is different for each rep
-    time = time - (time0Index-1) * 0.02;
-    pos = dataCurr.Data.Position.Force(:, com1indexPerBlock);
+
+    pos = dataCurr.Data.Position.Force(:, IndexPerTrial);
     posSize = size(pos);
     posByBlock((i-1)*forceRows+1 : i*forceRows, 1 : posSize(1, 2)) = pos;
     
     if (plotForce == 1)
+        %construct time point for x axis.
+        time = 0 : 0.02 : (length(IndexPerTrial) -1) * 0.02;
+        %offset the time array to be 0 at movement onset time.
+        time = time - (time0Index-1) * 0.02;
         plotIndex = (i-1)*forceRows+1;
         for k = 1:forceRows
             subplot(blocks,forceRows, plotIndex);
@@ -118,8 +126,8 @@ for i = 1 : blocks*forceRows
 end
 
 for i = 1 : blocks
-    nonZeroCols = length(nonzeros(com1Index(i, :)));
-    AllDataIndex((conditionType-1)*blocks+i,1:nonZeroCols) = com1Index(i, 1:nonZeroCols);
+    nonZeroCols = length(nonzeros(trialIndexForCurrentCondition(i, :)));
+    AllDataIndex((conditionType-1)*blocks+i,1:nonZeroCols) = trialIndexForCurrentCondition(i, 1:nonZeroCols);
 end
 
 AllTime(conditionType, 1:length(time)) = time;
