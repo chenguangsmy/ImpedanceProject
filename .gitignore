@@ -1,2 +1,3 @@
-SonicDataProcessed/*.mat  #ignore processed data file
-SonicData/*.mat  #ignore input data file
+SonicDataProcessed/*.mat
+SonicData/*.mat
+SonicData/*.fig
