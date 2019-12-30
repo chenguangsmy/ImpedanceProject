@@ -1,8 +1,16 @@
-%find index for each condition per block, average across block,
-%then plot displacement from that condition, now x-. Co1 - X
-%line up, plot trial average for condition 1
-% then plot other conditions with x+: 6 other ones; in 1 figure
-%after line up, pad NaN for the negative times?
+%Author: Shuqi Liu 
+%Date: 2019-12-30 11:50 
+%File Description: Pre-process the position data to be aligned at movement
+%onset time. Save the processsed data to the output variable.
+%Output variable format:
+%- AllPositionTrialAverage: 6 rows per condition, all force for condition1, then
+%next condition, etc.
+%- AllPositionAlignedByBlock: total reps (blocks * rep per block) * 6 rows per condition
+%In row order: Fx for all reps of a given condition, y, z, torque x, y, z; 
+%then repeat for next condition
+%- AllPositionRaw: not aligned at time 0, in order x,y,z,torque x,y,z for
+%1 rep of a given condition; then next rep...; after all reps for this
+%condition, go to next condition.
 
 if (plotPos == 1)
     figure('Name','Position'); 

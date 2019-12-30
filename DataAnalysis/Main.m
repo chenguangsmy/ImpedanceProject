@@ -44,6 +44,7 @@ plotPos = 0;
 plotForce = 0;
 
 forceRows= 6;
+posRows = 3;
 totalConditionTypes = 24;
 maxCols = 1000;
 repPerBlock = 5;
@@ -55,10 +56,13 @@ numberBlocks = dataCurr.Data.BlockNo(length(dataCurr.Data.BlockNo)) - 1;
 blocks = numberBlocks * repPerBlock;
 %FIXME: for some reason can't use block number read from the array data for the subplot command?
 
-%initialize output variables:
-AllTrialAverage = zeros(forceRows * totalConditionTypes, maxCols);
-AllAlignedByBlock = zeros (forceRows * totalConditionTypes * blocks, maxCols);
-AllRaw = zeros (forceRows * totalConditionTypes * blocks, maxCols);
+%initialize output variables.
+AllForceTrialAverage = zeros(forceRows * totalConditionTypes, maxCols);
+AllForceAlignedByBlock = zeros (forceRows * totalConditionTypes * blocks, maxCols);
+AllForceRaw = zeros (forceRows * totalConditionTypes * blocks, maxCols);
+AllPosTrialAverage = zeros(posRows * totalConditionTypes, maxCols);
+AllPosAlignedByBlock = zeros (posRows * totalConditionTypes * blocks, maxCols);
+AllPosRaw = zeros (posRows * totalConditionTypes * blocks, maxCols);
 
 %initialize time and data index with NaN since real data couldn't take NaN
 AllDataIndex = NaN (totalConditionTypes * blocks, maxCols);
@@ -76,12 +80,14 @@ for conditionType = 1:24
     %validate if block number is different than 5, needs to change the code
     FindTrialIndexesForCondition
 %     PositionData
-    ForceData 
+    AlignAndPopulateData 
 end
 
-outputFileName = append('../SonicDataProcessed/Sonic', sessionNum,'.ForceDataAligned.mat');
-save(outputFileName, 'AllTrialAverage', 'AllAlignedByBlock', 'AllRaw', 'AllDataIndex', 'AllTime');
+outputFileName = append('../SonicDataProcessed/Sonic.', sessionNum,'.DataAligned.mat');
+save(outputFileName, 'AllForceTrialAverage', 'AllForceAlignedByBlock', 'AllForceRaw',... 
+    'AllPosTrialAverage', 'AllPosAlignedByBlock', 'AllPosRaw',...
+    'AllDataIndex','AllTime', 'numberBlocks', 'maxOnsetIndex', 'blocks');
 
 load(outputFileName);
-
 PlotForceData;
+PlotPosData;

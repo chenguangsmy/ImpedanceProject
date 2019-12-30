@@ -35,13 +35,15 @@
 % load(fileName);
 
 figure('Name', 'Trial Average Force for All Conditions');
+totalConditionTypes = 24;
+forceRows = 6;
 cols = totalConditionTypes / forceRows;
 
 for i = 1:totalConditionTypes
     subplot(forceRows,cols,i);
     hold on;
     for j = 1:forceRows
-        plot(AllTime(i,:),AllTrialAverage((i-1)*forceRows + j, :));
+        plot(AllTime(i,:),AllForceTrialAverage((i-1)*forceRows + j, :));
         xlim([-2.5, 1]);
         ylim([-15, 10]);
     end
