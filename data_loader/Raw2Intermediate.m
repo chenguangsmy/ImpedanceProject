@@ -43,6 +43,7 @@ function [iData, IncrState] = Raw2Intermediate( RawDataDir, IncrState)
         end
 
         % newest, v3 naming convention
+        %Currently in use, as the data under Raw is QL.####.bin
         V3 = regexp(filename, '^QL\.\d{4}\.\d*\.?bin', 'match');
         if (~isempty(V3{1}))
             addpath([srcdir '/v4']);

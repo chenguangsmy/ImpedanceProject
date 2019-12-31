@@ -590,7 +590,9 @@ function [Data, IncrState] = Intermediate2Formatted_v4( iData, IncrState)
     % --------------------------------------------------------------
     position = struct();
     velocity = struct();
+    force = struct();
     
+    %All messages that populate velocity were never received
     if( isfield( D, 'EM_MOVEMENT_COMMAND'))
         position.Decoded = D.EM_MOVEMENT_COMMAND.pos;
         velocity.Decoded = D.EM_MOVEMENT_COMMAND.vel;
@@ -603,13 +605,22 @@ function [Data, IncrState] = Intermediate2Formatted_v4( iData, IncrState)
     end
     
     if( isfield( D, 'BURT_STATUS'))
+        %TODO: if other messages to populate position, not used, maybe
+        %remove for now and populate position without this transpose
         position.Actual = [D.BURT_STATUS.pos_x; ...
                            D.BURT_STATUS.pos_y; ...
                            D.BURT_STATUS.pos_z]';
+        velocity.Actual = [D.BURT_STATUS.vel_x; ...
+               D.BURT_STATUS.vel_y; ...
+               D.BURT_STATUS.vel_z];
+        %the center position should be the same for the entire expeirment.
+        %Ideally only need to populate it once with 1 row.
+        position.Center = [D.BURT_STATUS.center_x; D.BURT_STATUS.center_y;...
+            D.BURT_STATUS.center_z];
     end
 
     if( isfield( D, 'FORCE_SENSOR_DATA'))
-        position.Force = [D.FORCE_SENSOR_DATA.data];
+        force.Sensor = [D.FORCE_SENSOR_DATA.data];
     end
     
     if( isfield( D, 'JVR_CURSOR_POS'))
@@ -742,6 +753,7 @@ function [Data, IncrState] = Intermediate2Formatted_v4( iData, IncrState)
     Data.ComboNo = target_combo_ids;
     Data.Position = position;
     Data.Velocity = velocity;
+    Data.Force = force;
     if (isfield(D, 'SPM_SPIKECOUNT'))
         Data.SpikeCount = active_spike_data;
         Data.SpikeTimestamp = spike_ts;
