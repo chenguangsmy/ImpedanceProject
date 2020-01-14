@@ -2,41 +2,62 @@
 %Date: 2019-12-27 17:06 
 %File Description: Plot the position data. Plot the trajectory by
 %condition, each row = 1 force and target distance configuration, each
-%column = 1 reach direction in order right (-z), left (+z), forward (+y)
-%and backward(-y).
+%column = 1 reach direction in order right (-x), left (+x), forward (+y)
+%and backward(-y). For position, the z direction is up/down
 
 figure('Name', 'Position Trajectory for All Conditions');
-totalConditionTypes = 1;
-rows = 1;
+totalConditionTypes = 24;
 posRows = 3;
-cols = 1;%totalConditionTypes / rows;
+%add the center/home position offset
+xoffset = 0.12;
+yoffset = -0.5;
+zoffset = -0.25;
 
-%TODO: it appears the pos is in order z,y,x, and they don't start from
-%origin
+style=["b","r","g","b--","r--","g--"];
 
-for i = 1:totalConditionTypes
+i = 1;
+plot3(AllPosTrialAverage((i-1)*posRows + 1, :) +xoffset, ...
+    AllPosTrialAverage((i-1)*posRows + 2, :) + yoffset,...
+    AllPosTrialAverage((i-1)*posRows + 3, :) + zoffset, style(fix((i-1)/4)+1));
+
+hold on;
+%plot data in condition1, 2, 3,... order
+for i = 2:totalConditionTypes
     fprintf('Plotting Condition: %d\n',i);
-    subplot(rows,cols,i);
-    hold on;
-    %the data is in condition1, 2, 3,... order
-    %plot x,y,z for the given condition
-    start = (i-1)*blocks*posRows;
+
     %TODO?plot 3D doesn't really work here...
-    plot3(AllPosAlignedByBlock(1, :),AllPosAlignedByBlock(16, :),AllPosAlignedByBlock(31, :));
-%         plot3(AllPosAlignedByBlock(start+1:start+blocks, :),...
-%         AllPosAlignedByBlock(start + blocks + 1 : start + 2*blocks, :),...
-%         AllPosAlignedByBlock(start+2*blocks+1 : start + 3*blocks, :));
-    %xlim([-2.5, 1]);
-    %ylim([-15, 10]);
-    xlabel('x');
-    ylabel('y');
-    zlabel('z');
-    %the maxonsetIndex would be the time 0 point.
-    %xline(0, '-.');
-    %TODO: figure out the starting and ending target area in real
-    %coordinates
-    hold off;
+%     plot3(AllPosAlignedByBlock(1, :) +xoffset, ...
+%         AllPosAlignedByBlock(16, :) + yoffset,...
+%         AllPosAlignedByBlock(31, :) + zoffset);
+    plot3(AllPosTrialAverage((i-1)*posRows + 1, :) +xoffset, ...
+        AllPosTrialAverage((i-1)*posRows + 2, :) + yoffset,...
+        AllPosTrialAverage((i-1)*posRows + 3, :) + zoffset, style(fix((i-1)/4)+1));
+    %start = (i-1)*blocks*posRows;
+%     plot3(AllPosAlignedByBlock(start+1:start+blocks, :) + xoffset,...
+%          AllPosAlignedByBlock(start + blocks + 1 : start + 2*blocks, :) + yoffset,...
+%          AllPosAlignedByBlock(start+2*blocks+1 : start + 3*blocks, :) + zoffset);
+
 end
+
+xlim([-0.1, 0.1]);
+ylim([-0.1, 0.1]);
+zlim([-0.1, 0.1])
+xlabel('x');
+ylabel('y');
+zlabel('z');
+
+%adding reference line starting at origin (0,0,0), seems tricky to
+%align axis naturally at origin
+reference = linspace(-0.2,0.2,100);
+plot3(reference,zeros(100), zeros(100),'k');
+plot3(zeros(100),reference, zeros(100),'k');
+plot3(zeros(100), zeros(100), reference, 'k');
+
+hold off;
+%the maxonsetIndex would be the time 0 point.
+%xline(0, '-.');
+%TODO: figure out the starting and ending target area in real
+%coordinates
 
 % delete(findall(gcf,'type','annotation'));
 % %top row title

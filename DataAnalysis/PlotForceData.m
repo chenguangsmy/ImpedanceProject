@@ -29,28 +29,31 @@
 %6 rows x 4 columns, each column -> 1 movement direction;
 %each row: same force threshold, 1->3, force threshold increases;
 %bottom 3: closer distance, 4->6, force threshold increases;
-% forceRows = 6;
-% totalConditionTypes = 24;
+
 % fileName = append('Sonic',sessionNum, 'ForceData.mat');
 % load(fileName);
 
 figure('Name', 'Trial Average Force for All Conditions');
 totalConditionTypes = 24;
-forceRows = 6;
-cols = totalConditionTypes / forceRows;
+rows = 6;
+cols = totalConditionTypes / rows;
 
 for i = 1:totalConditionTypes
-    subplot(forceRows,cols,i);
+    subplot(rows,cols,i);
     hold on;
-    for j = 1:forceRows
-        plot(AllTime(i,:),AllForceTrialAverage((i-1)*forceRows + j, :));
+    for j = 1:rows
+        if (j == 1 || j ==2 )
+            plot(AllTime(i,:),AllForceTrialAverage((i-1)*forceRowsAverage + j + 6, :));
+        else
+            plot(AllTime(i,:),AllForceTrialAverage((i-1)*forceRowsAverage + j, :));
+        end
         xlim([-2.5, 1]);
         ylim([-15, 10]);
     end
     xline(0, '-.');
     hold off;
 end
-legend('Fx', 'Fy','Fz','TorqueX','TorqueY','TorqueZ');
+legend('Fforward','Fup', 'Fz','TorqueX','TorqueY','TorqueZ');
 
 delete(findall(gcf,'type','annotation'));
 %top row title
@@ -58,9 +61,9 @@ annotation('textbox', [.17,.93,.08,.05],'String','Right (-z)', ...
     'EdgeColor', 'none' ,'FontSize', 20);
 annotation('textbox', [.38,.93,.08,.05],'String','Left (+z)', ...
     'EdgeColor', 'none' ,'FontSize', 20);
-annotation('textbox', [.57,.93,.15,.05],'String','Forward (+y)', ...
+annotation('textbox', [.57,.93,.15,.05],'String','Forward', ...
     'EdgeColor', 'none' ,'FontSize', 20);
-annotation('textbox', [.77,.93,.15,.05],'String','Backward (-y)', ...
+annotation('textbox', [.77,.93,.15,.05],'String','Backward', ...
     'EdgeColor', 'none' ,'FontSize', 20);
 
 %column wise title

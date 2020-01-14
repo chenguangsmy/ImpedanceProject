@@ -31,6 +31,8 @@ end
 forceByBlock = zeros(forceRows * blocks, maxCols);
 %position in 3 direction for each repetition
 posByBlock = zeros(posRows * blocks, maxCols);
+%velocity in 3 direction for each repetition
+velByBlock = zeros(posRows * blocks, maxCols);
 
 %The relative movement onset index (from the beginning of a trial)
 onsetIndexByBlock = zeros(1,blocks);
@@ -58,7 +60,7 @@ for i = 1 : blocks
        maxMoveTime = moveTime;
     end
 
-    force = dataCurr.Data.Position.Force(:, IndexPerTrial);
+    force = dataCurr.Data.Force.Sensor(:, IndexPerTrial);
     forceSize = size(force);
     forceByBlock((i-1)*forceRows+1 : i*forceRows, 1 : forceSize(1, 2)) = force;
     
@@ -81,7 +83,12 @@ for i = 1 : blocks
     posSize = size(pos);
     posByBlock((i-1)*posRows+1 : i*posRows, 1 : posSize(1, 1)) = pos';
     
-    %TODO: implement the plotPos
+    vel = dataCurr.Data.Velocity.Actual(:,IndexPerTrial);
+    velSize = size(vel);
+    velByBlock((i-1)*posRows+1 : i*posRows, 1 : velSize(1, 2)) = vel;
+    
+    %TODO: implement the plotPos; probably optimize this to avoid
+    %repetition as well. 
     
 end
 
@@ -96,6 +103,8 @@ alignedCols = maxOnsetIndex+maxMoveTime;
 alignedForceByBlock = NaN(forceRows*blocks, alignedCols);
 %rearrange to be position x for all repetitions first, then y, z
 alignedPosByBlock = NaN(posRows*blocks, alignedCols);
+%rearrange to be position x for all repetitions first, then y, z
+alignedVelByBlock = NaN(posRows*blocks, alignedCols);
 
 %construct time for the x-axis, where t = 0 is movement onset
 time = 0 : 0.02 : (alignedCols-1) * 0.02;
@@ -121,6 +130,13 @@ for i = 1 : blocks
     end
     %TODO: implment plotting pos code
     
+    for j = 1 : posRows
+        toFill = velByBlock((i-1)*posRows + j,:);
+        nonzeroCols = length(nonzeros(toFill));
+        alignedVelByBlock(i+(j-1) * blocks, offset : offset+nonzeroCols - 1) = ...
+            toFill(1, 1:nonzeroCols);
+    end
+    
     %if plot, plot the force, each row = 1 trial, each column = 1 direction
     if plotForce == 1 
         plotIndex = (i-1)*forceRows+1;
@@ -135,13 +151,16 @@ for i = 1 : blocks
     end
 end
 
-%trial average, where each row = 1 force direction
-trialAverageForceData = zeros(forceRows, alignedCols);
+%trial average, where each row = 1 force direction, has 2 more rows than
+%other force data, include 2 mapped dimensions
+trialAverageForceData = zeros(forceRowsAverage, alignedCols);
 trialAveragePosData = zeros(posRows, alignedCols);
+trialAverageVelData = zeros(posRows, alignedCols);
 if (plotForce == 1)
     figure('Name' ,'Trial Average Force');
 end
 
+%populate regular dimensions first
 for i = 1 : forceRows
     trialAverageForceData(i, :) = mean(alignedForceByBlock((i-1)*blocks+1:i*blocks, :));
     if (plotForce == 1)
@@ -149,9 +168,22 @@ for i = 1 : forceRows
         plot(time,trialAverageForceData(i, :));
     end
 end
+%add 2 rows of mapped force to horizontal (forward/backward) and vertical
+%theta = angle between +x and horizontal plane counterclockwise
+theta = pi/4;
+%horizontal force = -cosTheta * x + sinTheta * y; assuming forward is
+%positive
+trialAverageForceData(forceRows+1, :) = - trialAverageForceData(1,:) * cos(theta)...
+    + trialAverageForceData(2,:) * sin(theta);
+%vertical force = sinTheta * x + cosTheta * y, assuming upward is positive
+trialAverageForceData(forceRows+2, :) = trialAverageForceData(1,:) * sin(theta)...
+    + trialAverageForceData(2,:) * cos(theta);
+
 
 for i = 1 : posRows
     trialAveragePosData(i, :) = mean(alignedPosByBlock((i-1)*blocks+1:i*blocks, :));
+    trialAverageVelData(i, :) = mean(alignedVelByBlock((i-1)*blocks+1:i*blocks, :));
+   
     %TODO: implement plotting position
 %     if (plotPos == 1)
 %         subplot(forceRows,1,i);
@@ -175,7 +207,7 @@ end
 %the same number of rows.
 
 %starts fill in the data from the first column
-AllForceTrialAverage((conditionType-1)*forceRows+1 : conditionType*forceRows,...
+AllForceTrialAverage((conditionType-1)*forceRowsAverage+1 : conditionType*forceRowsAverage,...
     1:alignedCols) = trialAverageForceData(:,:);
 
 AllForceAlignedByBlock((conditionType-1)*blocks*forceRows+1 : conditionType*blocks*forceRows,...
@@ -192,11 +224,23 @@ AllPosTrialAverage((conditionType-1)*posRows+1 : conditionType*posRows,...
 
 AllPosAlignedByBlock((conditionType-1)*blocks*posRows+1 : conditionType*blocks*posRows,...
     1:alignedCols) = alignedPosByBlock(:,:);
-
 for i = 1 : blocks*posRows
     toFill = posByBlock(i,:);
     nonZeroCols = length(nonzeros(toFill));
     AllPosRaw((conditionType-1)*blocks*posRows+i,1:nonZeroCols) = posByBlock(i,1:nonZeroCols);
+end
+
+
+AllVelTrialAverage((conditionType-1)*posRows+1 : conditionType*posRows,...
+    1:alignedCols) = trialAverageVelData(:,:);
+
+AllVelAlignedByBlock((conditionType-1)*blocks*posRows+1 : conditionType*blocks*posRows,...
+    1:alignedCols) = alignedVelByBlock(:,:);
+
+for i = 1 : blocks*posRows
+    toFill = velByBlock(i,:);
+    nonZeroCols = length(nonzeros(toFill));
+    AllVelRaw((conditionType-1)*blocks*posRows+i,1:nonZeroCols) = velByBlock(i,1:nonZeroCols);
 end
 
 for i = 1 : blocks
