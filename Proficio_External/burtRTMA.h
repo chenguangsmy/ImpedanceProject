@@ -83,7 +83,8 @@ void respondToRTMA(barrett::systems::Wam<DOF>& wam,
   
   bool freeMoving = false; //TODO: THIS SHOULD BE FALSE
   cp_type cp;
-  //cp_type monkey_center(0.350, -0.120, 0.250);
+  cv_type cv;
+  //the system_center is the cp_type center_pos(0.5, -0.120, 0.250);
   cp_type monkey_center(system_center);
   cp_type target;
 
@@ -94,11 +95,12 @@ void respondToRTMA(barrett::systems::Wam<DOF>& wam,
     // Read Messages
     mod.ReadMessage( &Consumer_M);
 
-    // Send Position Data
+    // Send Position Data, no data will be sent when in state 1 (begin, before present)
     if (Consumer_M.msg_type == MT_SAMPLE_GENERATED && !freeMoving)
     {
       MDF_SAMPLE_GENERATED sample_generated_data;
       Consumer_M.GetData(&sample_generated_data);
+      //TODO: check type
       MDF_BURT_STATUS burt_status_data;
       
       burt_status_data.sample_header = sample_generated_data.sample_header;
@@ -107,15 +109,30 @@ void respondToRTMA(barrett::systems::Wam<DOF>& wam,
       //burt_status_data.error = (int) hasError;
 
       // Set Force Data
+      // The force data is not populated, these values are always 0 for now.
       burt_status_data.force_x = cforce[1];
       burt_status_data.force_y = cforce[0];
       burt_status_data.force_z = cforce[2];
 
       // Set Position Data  TODO: MOVE CONVERSION ELSEWHERE
+      //Populate the pos data from wam, bounded by 9.999,
+      //cp is in x,y,z order but populated to y,x,z.
+      //x and y axis are reverted to match real coordinates?
       cp = barrett::math::saturate(wam.getToolPosition(), 9.999);
       burt_status_data.pos_x = cp[1]; // * 1280 / 0.2; // Assume this is accurate
       burt_status_data.pos_y = cp[0]; // * 1280 / 0.2; // TODO: check that cp has the right value
       burt_status_data.pos_z = cp[2]; // * 1280 / 0.2; // and is set properly
+
+      //populate velocity here
+      cv = barrett::math::saturate(wam.getToolVelocity(), 19.999);
+	  burt_status_data.vel_x = cv[1]; // * 1280 / 0.2; // Assume this is accurate
+	  burt_status_data.vel_y = cv[0]; // * 1280 / 0.2; // TODO: check that cp has the right value
+	  burt_status_data.vel_z = cv[2]; // * 1280 / 0.2; // and is set properly
+
+	  //also populate the center location
+	  burt_status_data.center_x = system_center[1];
+	  burt_status_data.center_y = system_center[0];
+	  burt_status_data.center_z = system_center[2];
 
       // Send Message
       CMessage M( MT_BURT_STATUS );
@@ -131,7 +148,7 @@ void respondToRTMA(barrett::systems::Wam<DOF>& wam,
       cout << "task id : " << task_state_data.id << endl;
       freeMoving = false;
       
-      switch(task_state_data.id)
+      switch(task_state_data.id) //cases are task state: begin, present, forceramp, move, hold, end, reset
       {
         case 1:
           freeMoving = true;
@@ -180,7 +197,7 @@ void respondToRTMA(barrett::systems::Wam<DOF>& wam,
       cout << monkey_center << endl;
     }
 
-    // Have Burt move in steps toward home postion
+    // Have Burt move toward home position using the default moveTo speed.
     else if (Consumer_M.msg_type == MT_MOVE_HOME && freeMoving)
     {
       MDF_MOVE_HOME startButton;
