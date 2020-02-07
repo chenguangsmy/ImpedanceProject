@@ -1,7 +1,1 @@
-SonicDataProcessed/*.mat
-SonicData/*.mat
-SonicData/*.fig
-KingKongData/*.mat
-SonicData/Intermediate/*.mat
-SonicData/Sonic.DK.*
-KingKongData/Intermediate/*.mat
+SubjectData/*.mat
