@@ -12,7 +12,7 @@ clear all;
 
 %TODO: change session number each time
 sessionNum = '00203';
-subjectName = 'Sonic';
+subjectName = ''; %enter subjec name here
 fileName = append('../',subjectName,'Data/',subjectName,'.',sessionNum, '.mat');
 
 %load data
